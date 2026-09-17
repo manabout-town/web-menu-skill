@@ -1,0 +1,689 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>Still No.7 메뉴</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0b0e0d">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='6' fill='%230b0e0d'/%3E%3Ctext x='32' y='44' font-family='Arial' font-weight='700' font-size='34' text-anchor='middle' fill='%23c9e265'%3E7%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=IBM+Plex+Sans+KR:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* 스타일: 다크모드 — 그린 기 near-black + 포인트 라임 1색. radius 타이트 계열(2~6px) */
+:root{
+  --bg0:#0b0e0d; --bg1:#111614; --bg2:#18201d;
+  --lime:#c9e265; --lime-dim:rgba(201,226,101,.16); --lime-line:rgba(201,226,101,.34);
+  --ink:232,238,230;
+  --ink-1:rgba(var(--ink),.93); --ink-2:rgba(var(--ink),.68);
+  --ink-3:rgba(var(--ink),.44); --ink-4:rgba(var(--ink),.26);
+  --line:rgba(var(--ink),.12); --line-soft:rgba(var(--ink),.06);
+  --surf-1:rgba(var(--ink),.035); --surf-2:rgba(var(--ink),.07);
+  --display:'Bricolage Grotesque','IBM Plex Sans KR',sans-serif;
+  --sans:'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --ease-out:cubic-bezier(0,0,.2,1); --ease-expo:cubic-bezier(.16,1,.3,1);
+  --dur-ui:160ms; --dur-reveal:480ms;
+  --r:4px; --w-max:1244px; --gut:clamp(16px,5vw,64px); --cell:50px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg0);color:var(--ink-1);font-family:var(--sans);
+  font-size:14px;line-height:1.6;letter-spacing:-.011em;word-break:keep-all;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{display:block;max-width:100%}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+.btn,.nav-go,.sim .num,.prices{white-space:nowrap}
+a{color:inherit}
+::selection{background:var(--lime);color:var(--bg0)}
+:focus-visible{outline:1.5px solid var(--lime);outline-offset:2px}
+.shell{max-width:var(--w-max);margin:0 auto;padding:0 var(--gut)}
+.label{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.label.kr{font-family:var(--sans);letter-spacing:0;text-transform:none;font-size:12px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums;letter-spacing:0}
+
+/* 고정 레이어 */
+#progress{position:fixed;top:0;left:0;height:2px;width:100%;z-index:60;transform-origin:0 50%;transform:scaleX(0);background:var(--lime)}
+body::after{content:"";position:fixed;inset:0;z-index:90;pointer-events:none;opacity:.045;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* ── 로더: 증류 방울 → ABV 카운트 ── */
+body.loading{overflow:hidden}
+#loader{position:fixed;inset:0;z-index:80;background:var(--bg0);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:18px;
+  clip-path:inset(0 0 0 0);transition:clip-path 1s var(--ease-expo)}
+body.open #loader{clip-path:inset(0 0 100% 0)}
+body.done #loader{display:none}
+#loader svg{width:92px;height:auto;overflow:visible}
+.still-line{stroke:var(--ink-3);stroke-width:1.2;fill:none}
+.drop{fill:var(--lime);animation:drip 900ms cubic-bezier(.55,0,1,.45) infinite}
+@keyframes drip{0%{transform:translateY(0);opacity:0}15%{opacity:1}90%{opacity:1}100%{transform:translateY(58px);opacity:0}}
+#fill{fill:var(--lime);transform-origin:50% 100%;transform:scaleY(0);transform-box:fill-box}
+.abv{font-family:var(--display);font-weight:300;font-size:clamp(44px,12vw,72px);line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.abv small{font-size:.4em;color:var(--ink-3);margin-left:4px}
+.skip{position:absolute;bottom:max(24px,env(safe-area-inset-bottom));color:var(--ink-4)}
+
+/* ── 상단 바 ── */
+#nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;justify-content:space-between;align-items:center;
+  padding:14px var(--gut);transition:background var(--dur-ui) var(--ease-out),transform 480ms var(--ease-expo)}
+#nav.solid{background:rgba(11,14,13,.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line-soft)}
+#nav.away{transform:translateY(-100%)}
+.logo{font-family:var(--display);font-weight:600;font-size:17px;letter-spacing:-.03em;text-decoration:none}
+.logo i{font-style:normal;color:var(--lime)}
+.nav-go{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;
+  border:1px solid var(--line);border-radius:var(--r);padding:8px 12px;transition:border-color var(--dur-ui) var(--ease-out)}
+.nav-go:hover{border-color:var(--lime-line)}
+
+/* ── HERO ── */
+#hero{position:relative;min-height:100svh;display:flex;flex-direction:column;justify-content:flex-end;
+  padding:96px 0 clamp(40px,9vh,96px);overflow:hidden;isolation:isolate}
+.hero-bg{position:absolute;inset:0;z-index:-1;
+  background:radial-gradient(70% 60% at 72% 30%,rgba(201,226,101,.12),transparent 60%),linear-gradient(160deg,var(--bg2),var(--bg0) 70%)}
+.hero-bg img{width:100%;height:100%;object-fit:cover;opacity:0;transform:scale(1.12);
+  transition:opacity 1.2s var(--ease-out),transform 2.4s var(--ease-expo)}
+body.open .hero-bg img.ok{opacity:1;transform:scale(1.02)}
+.hero-bg::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(11,14,13,.7),transparent 18%),linear-gradient(0deg,var(--bg0) 4%,rgba(11,14,13,.55) 45%,rgba(11,14,13,.25)),linear-gradient(90deg,rgba(11,14,13,.8),transparent 70%)}
+#hero .shell{width:100%}
+.hero-meta{margin:14px 0 0;font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--ink-3)}
+.wordmark{font-family:var(--display);font-weight:700;font-size:clamp(64px,17vw,232px);line-height:.86;letter-spacing:-.04em;margin:0}
+.wordmark .ln{display:block;overflow:hidden;padding-bottom:.08em;margin-bottom:-.08em}
+.wordmark .ln>span{display:block;transform:translateY(105%);transition:transform 1.1s var(--ease-expo)}
+.wordmark em{font-style:normal;color:var(--lime);font-weight:300}
+body.open .wordmark .ln>span{transform:none}
+body.open .wordmark .ln:nth-child(2)>span{transition-delay:90ms}
+.hero-sub{max-width:34ch;margin:22px 0 0;font-size:clamp(15px,2vw,18px);line-height:1.55;color:var(--ink-2)}
+.hero-cta{display:flex;flex-wrap:wrap;gap:8px;margin-top:28px}
+.btn{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 18px;border-radius:var(--r);
+  font-size:14px;font-weight:500;text-decoration:none;border:1px solid var(--line);
+  transition:background var(--dur-ui) var(--ease-out),border-color var(--dur-ui) var(--ease-out),color var(--dur-ui) var(--ease-out)}
+.btn.pri{background:var(--lime);border-color:var(--lime);color:var(--bg0)}
+.btn.pri:hover{background:#d8ee82}
+.btn:not(.pri):hover{border-color:var(--lime-line)}
+.fade{opacity:0;transform:translateY(14px);transition:opacity 700ms var(--ease-expo),transform 700ms var(--ease-expo);transition-delay:var(--d,0ms)}
+body.open .fade{opacity:1;transform:none}
+
+/* ── 섹션 공통 ── */
+section{position:relative;padding:clamp(72px,12vh,128px) 0}
+.sec-h{font-family:var(--display);font-weight:600;font-size:clamp(34px,6vw,72px);line-height:.95;letter-spacing:-.035em;margin:0}
+.sec-h .kr{font-family:var(--sans);font-weight:500;letter-spacing:-.03em}
+.sec-sub{color:var(--ink-2);max-width:44ch;margin:16px 0 0;font-size:15px}
+.rv{opacity:0;transform:translateY(24px);transition:opacity var(--dur-reveal) var(--ease-expo),transform var(--dur-reveal) var(--ease-expo);transition-delay:var(--d,0ms)}
+.rv.lit{opacity:1;transform:none}
+
+/* 사진 프레임: 사진 없으면 그라디언트+이니셜로 완성 */
+.ph{position:relative;overflow:hidden;background:
+  radial-gradient(80% 70% at 30% 25%,rgba(201,226,101,.13),transparent 60%),linear-gradient(150deg,var(--bg2),var(--bg1));}
+.ph::before{content:attr(data-i);position:absolute;inset:0;display:grid;place-items:center;
+  font-family:var(--display);font-weight:300;font-size:64px;color:var(--ink-4);letter-spacing:-.04em}
+.ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;
+  transform:scale(1.08);filter:brightness(.6);transition:opacity .6s var(--ease-out),transform 1.4s var(--ease-expo),filter 1.4s var(--ease-expo)}
+.ph img.ok{opacity:1}
+.lit .ph img.ok,.ph.lit img.ok{transform:scale(1);filter:brightness(.92)}
+
+/* ── Nº01 이번 주 ── */
+.week{display:flex;gap:clamp(12px,2.4vw,28px);margin-top:40px;flex-wrap:wrap}
+.wcard{flex:1 1 300px;min-width:0;text-align:left;display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--r);
+  overflow:hidden;background:var(--surf-1);transition:border-color var(--dur-ui) var(--ease-out)}
+.wcard:hover{border-color:var(--lime-line)}
+.wcard .ph{aspect-ratio:4/3}
+@media (min-width:861px){.wcard .ph{aspect-ratio:3/2}}
+.wbody{padding:18px 18px 20px;display:flex;flex-direction:column;gap:8px}
+.wtop{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.wname{font-size:20px;font-weight:500;letter-spacing:-.02em;margin:0}
+.wname small{display:block;font-family:var(--display);font-size:13px;font-weight:400;color:var(--ink-3);letter-spacing:0}
+.wprice{font-size:18px;color:var(--lime)}
+.wdesc{color:var(--ink-2);margin:0}
+.pour{margin-top:6px}
+.pour-bar{height:3px;background:var(--line);border-radius:2px;overflow:hidden;margin-top:6px}
+.pour-bar i{display:block;height:100%;background:var(--lime);transform-origin:0 50%;transform:scaleX(0);transition:transform 1.2s var(--ease-expo) .2s}
+.lit .pour-bar i{transform:scaleX(var(--v))}
+
+/* ── Nº02 한 잔의 구조 (핀) ── */
+#build{height:520svh;padding:0}
+.pin{position:sticky;top:0;height:100svh;overflow:hidden;display:flex;align-items:center}
+.pin-in{width:100%;display:flex;align-items:center;gap:clamp(24px,5vw,72px)}
+.stack{position:relative;flex:0 0 min(42vw,calc(72svh * .8));aspect-ratio:4/5;border-radius:var(--r);overflow:hidden;
+  transform:scale(calc(1 + var(--lp,0) * .05));background:var(--bg1)}
+.stack .ph{position:absolute;inset:0;opacity:0;transform:scale(1.18);transition:opacity .8s var(--ease-out),transform 1.2s var(--ease-expo)}
+.stack .ph.on{opacity:1;transform:scale(1)}
+.stack .ph img.ok{transform:none;filter:brightness(.9)}
+.btext{flex:1;min-width:0}
+.bhead{display:flex;align-items:flex-end;gap:18px;margin-bottom:26px}
+.bstep{font-family:var(--display);font-weight:300;font-size:clamp(56px,9vw,120px);line-height:.8;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.bstep small{font-size:.25em;color:var(--ink-3);letter-spacing:0}
+.glass{width:54px;height:auto;margin-left:auto;flex:0 0 auto}
+.glass .rim{fill:none;stroke:var(--ink-3);stroke-width:1.2}
+.glass .lay{transform-box:fill-box;transform-origin:50% 100%;transform:scaleY(0)}
+.bslides{display:grid}
+.bslide{grid-area:1/1;opacity:0;transform:translateY(18px);transition:opacity .5s var(--ease-out),transform .7s var(--ease-expo);pointer-events:none}
+.bslide.on{opacity:1;transform:none;pointer-events:auto}
+.bslide h3{font-size:clamp(24px,3.4vw,40px);font-weight:500;letter-spacing:-.03em;line-height:1.15;margin:8px 0 12px}
+.bslide p{color:var(--ink-2);margin:0;max-width:40ch;font-size:15px}
+.bslide .spec{margin-top:16px;color:var(--ink-3)}
+.bdots{display:flex;gap:6px;margin-top:22px}
+.bdots i{flex:1;height:2px;background:var(--line);position:relative;overflow:hidden}
+.bdots i b{position:absolute;inset:0;background:var(--lime);transform-origin:0 50%;transform:scaleX(var(--f,0))}
+
+/* ── Nº03 메뉴 ── */
+#menu{padding-top:clamp(72px,12vh,128px)}
+.tools{position:sticky;top:0;z-index:40;background:rgba(11,14,13,.9);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line-soft);margin-top:32px}
+.tools .shell{display:flex;flex-direction:column;gap:10px;padding-top:12px;padding-bottom:12px}
+.row1{display:flex;gap:8px;align-items:center}
+.search{flex:1;min-width:0;height:40px;border-radius:var(--r);border:1px solid var(--line);background:var(--surf-1);
+  color:var(--ink-1);font:inherit;font-size:16px;padding:0 12px;transition:border-color var(--dur-ui) var(--ease-out)}
+.search::placeholder{color:var(--ink-4)}
+.search:focus{outline:0;border-color:var(--lime-line)}
+.toggle{flex:0 0 auto;height:40px;display:flex;align-items:center;gap:6px;padding:0 12px;border:1px solid var(--line);border-radius:var(--r);font-size:13px;color:var(--ink-2);white-space:nowrap}
+.toggle[aria-pressed="true"]{border-color:var(--lime-line);color:var(--lime)}
+.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 calc(var(--gut) * -1);padding:0 var(--gut);scroll-padding:0 var(--gut)}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;height:32px;padding:0 12px;border-radius:var(--r);border:1px solid var(--line);font-size:13px;color:var(--ink-2);white-space:nowrap;
+  transition:background var(--dur-ui) var(--ease-out),color var(--dur-ui) var(--ease-out),border-color var(--dur-ui) var(--ease-out)}
+.chip:hover{border-color:var(--ink-4)}
+.chip.on{background:var(--lime);border-color:var(--lime);color:var(--bg0)}
+.chip[data-go].on{background:var(--lime-dim);border-color:var(--lime-line);color:var(--lime)}
+.chip.tag{border-style:dashed}
+.chip.tag.on{border-style:solid}
+.chips .sep{flex:0 0 1px;background:var(--line);margin:6px 2px}
+
+.cats{padding-top:12px}
+@media (min-width:1024px){.cats{columns:2;column-gap:clamp(40px,5vw,72px)}.cat{break-inside:avoid}}
+.cat{padding-top:48px;scroll-margin-top:130px}
+.cat-h{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.cat-h h3{margin:0;font-family:var(--display);font-weight:600;font-size:clamp(28px,4.4vw,44px);line-height:1;letter-spacing:-.035em}
+.cat-h h3 span{font-family:var(--sans);font-size:14px;font-weight:400;color:var(--ink-3);letter-spacing:0;margin-left:8px}
+.cols{display:flex;flex:0 0 auto}
+.cols span,.cell{width:var(--cell);text-align:right}
+.cols span{font-size:10px;letter-spacing:.04em}
+.cat-note{color:var(--ink-3);font-size:13px;margin:10px 0 0}
+.list{list-style:none;margin:0;padding:0}
+.item{border-bottom:1px solid var(--line-soft)}
+.row{width:100%;display:flex;align-items:flex-start;gap:12px;padding:14px 0;text-align:left;border-radius:var(--r);
+  transition:background var(--dur-ui) var(--ease-out)}
+.row:hover{background:var(--surf-1)}
+.thumb{flex:0 0 56px;height:70px;border-radius:2px}
+.thumb::before{font-size:22px}
+.nm{flex:1;min-width:0}
+.nm b{font-size:15px;font-weight:500;letter-spacing:-.015em}
+.nm .en{display:block;font-family:var(--display);font-size:12.5px;color:var(--ink-3);letter-spacing:0;margin-top:1px}
+.nm .ds{display:block;color:var(--ink-3);font-size:13px;margin-top:4px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical}
+.badge{display:inline-block;vertical-align:2px;margin-left:6px;font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+  padding:2px 5px;border-radius:2px;border:1px solid var(--lime-line);color:var(--lime);white-space:nowrap}
+.badge.wk{background:var(--lime);color:var(--bg0);border-color:var(--lime)}
+.badge.out{border-color:var(--line);color:var(--ink-3)}
+.star{color:var(--lime);font-size:11px;margin-left:4px;letter-spacing:1px}
+.prices{display:flex;flex:0 0 auto;font-size:14px;padding-top:1px}
+.item.out .nm b,.item.out .prices{text-decoration:line-through;text-decoration-color:var(--ink-3);color:var(--ink-3)}
+.kids{list-style:none;margin:-6px 0 0;padding:0 0 12px 14px;border-left:1px solid var(--line);margin-left:2px}
+.kid{display:flex;align-items:baseline;gap:12px;padding:4px 0;color:var(--ink-2)}
+.kid .kn{flex:1;min-width:0}
+.kid.out{color:var(--ink-4)}
+.kid.out .kn{text-decoration:line-through}
+.empty{padding:56px 0;text-align:center;color:var(--ink-3)}
+.price-note{margin-top:28px;color:var(--ink-4)}
+
+/* 상세 시트 (TÀMH 상세 = 설명·취향·비슷한 술) */
+dialog{border:0;padding:0;background:var(--bg1);color:var(--ink-1);border:1px solid var(--line);border-radius:6px;
+  width:min(520px,calc(100% - 32px));max-height:88svh;overflow:auto}
+dialog::backdrop{background:rgba(5,7,6,.72);backdrop-filter:blur(3px)}
+dialog[open]{animation:up 480ms var(--ease-expo)}
+@keyframes up{from{opacity:0;transform:translateY(24px)}}
+@media (max-width:640px){
+  dialog{width:100%;max-width:100%;margin:auto 0 0;border-radius:6px 6px 0 0;border-bottom:0;padding-bottom:env(safe-area-inset-bottom)}
+}
+.sh-img{aspect-ratio:16/10}
+.sh-img img.ok{transform:none;filter:brightness(.92)}
+.sh-body{padding:20px 20px 24px}
+.sh-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.sh-top h4{outline:0;margin:0;font-size:22px;font-weight:500;letter-spacing:-.025em;line-height:1.25}
+.sh-top h4 small{display:block;font-family:var(--display);font-size:14px;font-weight:400;color:var(--ink-3);letter-spacing:0;margin-top:2px}
+.x{flex:0 0 auto;width:40px;height:40px;border:1px solid var(--line);border-radius:var(--r);font-size:18px;line-height:1}
+.sh-price{margin-top:14px;display:flex;flex-wrap:wrap;gap:6px 18px;color:var(--lime);font-size:15px}
+.sh-price span{color:var(--ink-3);margin-right:6px}
+.sh-desc{color:var(--ink-2);font-size:15px;margin:14px 0 0}
+.sh-k{margin:22px 0 8px}
+.sh-tags{display:flex;flex-wrap:wrap;gap:6px}
+.sh-tags span{font-size:12.5px;padding:4px 9px;border-radius:2px;background:var(--surf-2);color:var(--ink-2)}
+.sh-sim{display:flex;flex-direction:column;gap:6px}
+.sim{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line);border-radius:var(--r);text-align:left;
+  transition:border-color var(--dur-ui) var(--ease-out)}
+.sim:hover{border-color:var(--lime-line)}
+.sim small{color:var(--ink-3)}
+
+/* ── Nº04 방문 ── */
+.visit-img{aspect-ratio:21/9;border-radius:var(--r);margin-top:40px}
+.info{display:flex;flex-wrap:wrap;gap:0 clamp(24px,4vw,56px);margin:32px 0 0}
+.info div{flex:1 1 220px;min-width:0;padding:16px 0;border-top:1px solid var(--line)}
+.info dt{margin-bottom:6px}
+.info dd{margin:0;font-size:15px}
+.info dd small{display:block;color:var(--ink-3);font-size:13px}
+footer{padding:40px 0 calc(40px + env(safe-area-inset-bottom));border-top:1px solid var(--line-soft)}
+footer .shell{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px}
+
+/* 모바일 */
+@media (max-width:860px){
+  #build{height:560svh}
+  .pin{align-items:flex-start;padding-top:80px}
+  .pin-in{flex-direction:column;align-items:stretch;gap:14px}
+  .stack{flex:none;width:min(100%,calc(36svh * .8));margin:0 auto;aspect-ratio:4/5}
+  .bhead{margin-bottom:6px}
+  .bstep{font-size:44px}
+  .glass{width:34px}
+  .bslide h3{margin:4px 0 8px}
+  .bslide p{font-size:14px}
+  .bdots{margin-top:14px}
+}
+@media (max-width:860px) and (max-height:620px){
+  .stack{width:min(100%,calc(30svh * .8))}
+  .bslide p{-webkit-line-clamp:3;display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden}
+  .bslide .spec{display:none}
+}
+@media (max-width:380px){
+  :root{--cell:46px}
+  .thumb{flex-basis:48px;height:60px}
+  .toggle .t{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .rv,.fade,.wordmark .ln>span{opacity:1;transform:none}
+  #loader{display:none}
+}
+</style>
+</head>
+<body class="loading">
+<div id="progress"></div>
+
+<div id="loader" aria-hidden="true">
+  <svg viewBox="0 0 92 150">
+    <path class="still-line" d="M46 4v34M30 38h32l-4 18H34z"/>
+    <circle class="drop" cx="46" cy="62" r="3"/>
+    <clipPath id="cup"><path d="M22 96h48l-6 50H28z"/></clipPath>
+    <rect id="fill" x="20" y="96" width="52" height="52" clip-path="url(#cup)"/>
+    <path class="still-line" d="M22 96h48l-6 50H28z"/>
+  </svg>
+  <div class="abv"><span id="abv">00.0</span><small>% ABV</small></div>
+  <div class="label">Still No.7 · Euljiro · Gin Bar</div>
+  <div class="label kr skip">탭하면 바로 열려요</div>
+</div>
+
+<header id="nav">
+  <a class="logo" href="#hero">Still No.<i>7</i></a>
+  <a class="nav-go" href="#menu">Menu ↓</a>
+</header>
+
+<main>
+<section id="hero">
+  <div class="hero-bg"><img src="img/hero.jpg" alt="" fetchpriority="high"></div>
+  <div class="shell">
+    <h1 class="wordmark" aria-label="Still No.7">
+      <span class="ln"><span>Still</span></span>
+      <span class="ln"><span>No.<em>7</em></span></span>
+    </h1>
+    <p class="hero-sub fade" style="--d:450ms">을지로 인쇄골목 끝 초록 문. 진 스물두 병과 토닉 네 가지로 오늘 밤 한 잔을 맞춰 드려요.</p>
+    <p class="hero-meta fade" style="--d:520ms">을지로3가 · 18:00 — 02:00 · 월요일 휴무</p>
+    <div class="hero-cta fade" style="--d:600ms">
+      <a class="btn pri" href="#menu">메뉴 보기</a>
+      <a class="btn" href="#week">이번 주 한정</a>
+    </div>
+  </div>
+</section>
+
+<section id="week">
+  <div class="shell">
+    <h2 class="sec-h rv" style="--d:60ms">Weekly <span class="kr">한정 두 잔</span></h2>
+    <p class="sec-sub rv" style="--d:120ms">매주 월요일 바뀝니다. 준비한 잔이 다 나가면 끝나요.</p>
+    <div class="week" id="weekList"></div>
+  </div>
+</section>
+
+<section id="build">
+  <div class="pin">
+    <div class="shell pin-in">
+      <div class="stack" id="stack"></div>
+      <div class="btext">
+        <div class="bhead">
+          <div class="bstep"><span id="bnum">01</span><small> / 05</small></div>
+          <svg class="glass" viewBox="0 0 54 80" aria-hidden="true">
+            <clipPath id="gl"><path d="M6 4h42l-4 72H10z"/></clipPath>
+            <g clip-path="url(#gl)">
+              <rect class="lay" x="0" y="62" width="54" height="16" fill="rgba(232,238,230,.55)"/>
+              <rect class="lay" x="0" y="50" width="54" height="12" fill="rgba(232,238,230,.34)"/>
+              <rect class="lay" x="0" y="36" width="54" height="14" fill="rgba(232,238,230,.2)"/>
+              <rect class="lay" x="0" y="22" width="54" height="14" fill="rgba(232,238,230,.1)"/>
+              <rect class="lay" x="0" y="8" width="54" height="14" fill="#c9e265"/>
+            </g>
+            <path class="rim" d="M6 4h42l-4 72H10z"/>
+          </svg>
+        </div>
+        <div class="bslides" id="bslides"></div>
+        <div class="bdots" id="bdots"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="menu" aria-labelledby="menuH">
+  <div class="shell">
+    <h2 class="sec-h rv" id="menuH" style="--d:60ms">Tonight's <span class="kr">메뉴</span></h2>
+    <p class="sec-sub rv" style="--d:120ms">메뉴를 누르면 맛 설명과 비슷한 술이 나와요. 취향 태그로 골라 보셔도 됩니다.</p>
+  </div>
+  <div class="tools">
+    <div class="shell">
+      <div class="row1">
+        <input class="search" id="q" type="search" placeholder="이름·맛 검색 (예: 오이)" aria-label="메뉴 검색">
+        <button class="toggle" id="hideOut" aria-pressed="false">품절<span class="t"> 숨기기</span></button>
+      </div>
+      <div class="chips" id="chips"></div>
+    </div>
+  </div>
+  <div class="shell">
+    <div class="cats" id="cats"></div>
+    <p class="empty" id="empty" hidden>맞는 메뉴가 없어요. 바텐더에게 취향을 말씀해 주세요.</p>
+    <p class="label kr price-note">가격 단위 만원 · 1.4 = 14,000원 · 부가세 포함</p>
+  </div>
+</section>
+
+<section id="visit">
+  <div class="shell">
+    <h2 class="sec-h rv" style="--d:60ms">초록 문을 <span class="kr">찾으세요</span></h2>
+    <div class="ph visit-img rv" data-i="Euljiro"><img src="img/exterior.jpg" alt="밤의 을지로 골목, 작은 초록 문 위에 라임색 불빛" loading="lazy" onload="this.classList.add('ok')" onerror="this.remove()"></div>
+    <dl class="info">
+      <div class="rv"><dt class="label">Address</dt><dd>서울 중구 을지로 인쇄골목 7<small>을지로3가역 4번 출구 도보 3분 (가상 주소)</small></dd></div>
+      <div class="rv" style="--d:60ms"><dt class="label">Hours</dt><dd>18:00 — 02:00<small>라스트 오더 01:15 · 매주 월요일 휴무</small></dd></div>
+      <div class="rv" style="--d:120ms"><dt class="label">Seats</dt><dd>바 12석 · 창가 2인석 3개<small>6인 이상은 인스타 DM으로 예약</small></dd></div>
+    </dl>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="shell">
+    <span class="label">© Still No.7</span>
+    <span class="label kr">디자인 예시용 가상 가게 · 사진 AI 생성</span>
+  </div>
+</footer>
+
+<dialog id="sheet" aria-labelledby="shName"><div id="sheetIn"></div></dialog>
+
+<script>
+/* ────────────────────────────────────────────
+   메뉴 데이터 — 메뉴 수정은 여기만 고치면 됨
+   price: 단일가 / shot·bottle: 2단 가격 (레포사 방식)
+   sig: 시그니처 배지, star: 추천 ★ 개수, out: 품절 (TÀMH)
+   kids: 브랜드 하위 라인업, tags: 취향 필터, sim: 비슷한 메뉴 id
+──────────────────────────────────────────── */
+const MENU = [
+  {id:"weekly", ko:"이번 주 한정", en:"Weekly", cols:"single", note:"9.15 — 9.21 · 준비한 잔이 다 나가면 종료", items:[
+    {id:"w1", ko:"배럴 네그로니", en:"Barrel-aged Negroni", price:"1.9", img:"week-1", left:4, total:12,
+     tags:["스파이시","달콤"], desc:"작은 오크통에서 6주 재운 네그로니. 쓴맛이 둥글어지고 바닐라가 살짝 올라와요.", sim:["c-negroni","s3"]},
+    {id:"w2", ko:"유자 진 피즈", en:"Yuzu Gin Fizz", price:"1.6", img:"week-2", left:9, total:20,
+     tags:["시트러스","가볍게"], desc:"고흥 유자청과 흰자 거품. 시소 잎 한 장으로 향을 닫았어요.", sim:["c-french75","n-omija"]},
+  ]},
+  {id:"signature", ko:"시그니처", en:"Signature", cols:"single", items:[
+    {id:"s1", ko:"을지로 G&T", en:"Euljiro G&T", price:"1.6", sig:true, star:1, img:"sig-1",
+     tags:["허브","시트러스","가볍게"], desc:"오이 리본과 핑크페퍼. 토닉을 평소 절반만 넣어 진 향이 앞에 서요. 처음 오셨다면 이 잔부터.", sim:["g-hendricks","c-gnt"]},
+    {id:"s2", ko:"쑥 마티니", en:"Mugwort Martini", price:"1.8", sig:true, img:"sig-2",
+     tags:["허브","드라이"], desc:"강화도 쑥을 우린 진으로 만든 드라이 마티니. 쌉쌀한 풀 향이 길게 남아요.", sim:["c-martini","g-mare"]},
+    {id:"s3", ko:"오미자 사워", en:"Omija Sour", price:"1.7", sig:true, star:1, img:"sig-3",
+     tags:["시트러스","달콤"], desc:"문경 오미자의 다섯 맛에 레몬과 거품. 새콤한 맛이 먼저, 단맛은 나중에 와요.", sim:["w2","n-omija"]},
+    {id:"s4", ko:"스모크 김렛", en:"Smoked Gimlet", price:"1.9", sig:true, star:2, img:"sig-4",
+     tags:["스모키","시트러스","드라이"], desc:"사과나무 연기를 가둔 유리 덮개를 자리에서 열어 드려요. 라임의 산미 뒤로 연기가 스쳐요.", sim:["c-gimlet","c-lastword"]},
+  ]},
+  {id:"gin", ko:"진", en:"Gin", cols:"shot-bottle", note:"샷 30ml · 토닉 추가 +0.3", items:[
+    {id:"g-tanq", ko:"탱커레이", en:"Tanqueray", tags:["드라이"], desc:"주니퍼가 곧게 선 런던 드라이의 기준점.", sim:["g-bombay"], kids:[
+      {ko:"런던 드라이", shot:"0.9", bottle:"12.0"},
+      {ko:"넘버 텐", shot:"1.3", bottle:"18.0"}]},
+    {id:"g-hendricks", ko:"헨드릭스", en:"Hendrick's", star:1, tags:["플로럴","허브"], desc:"장미와 오이 향. 토닉과 섞으면 가장 부드러워지는 진.", sim:["s1","g-roku"], kids:[
+      {ko:"오리지널", shot:"1.1", bottle:"15.0"},
+      {ko:"오르비움", shot:"1.4", bottle:"19.0", out:true}]},
+    {id:"g-monkey", ko:"몽키 47", en:"Monkey 47", star:2, shot:"1.8", bottle:"24.0", tags:["허브","스파이시"], desc:"보태니컬 47가지. 크랜베리와 가문비나무 향이 겹겹이 열려요.", sim:["g-mare","g-kinobi"]},
+    {id:"g-roku", ko:"로쿠", en:"Roku", shot:"1.0", bottle:"14.0", tags:["플로럴","가볍게"], desc:"벚꽃과 유자를 담은 일본 진. 가볍게 시작하기 좋아요.", sim:["g-hendricks","g-kinobi"]},
+    {id:"g-kinobi", ko:"키노비", en:"Ki No Bi", shot:"1.6", bottle:"22.0", tags:["시트러스","허브"], desc:"교토 쌀 베이스, 유자와 산초. 산뜻한데 끝이 매콤해요.", sim:["g-roku","g-monkey"]},
+    {id:"g-bombay", ko:"봄베이 사파이어", en:"Bombay Sapphire", shot:"0.8", bottle:"11.0", tags:["가볍게"], desc:"향을 증기로 입혀 가벼운 편. 칵테일 베이스로 많이 써요.", sim:["g-tanq"]},
+    {id:"g-mare", ko:"진 마레", en:"Gin Mare", shot:"1.5", bottle:"20.0", tags:["허브","드라이"], desc:"올리브·로즈마리·바질. 짭짤한 지중해 쪽 진.", sim:["s2","g-monkey"]},
+    {id:"g-citadelle", ko:"시타델", en:"Citadelle", shot:"1.1", bottle:"15.0", tags:["스파이시"], desc:"코냑 산지에서 만든 진. 후추와 육두구가 따뜻해요.", sim:["g-tanq","c-negroni"]},
+  ]},
+  {id:"classic", ko:"클래식 칵테일", en:"Classics", cols:"single", items:[
+    {id:"c-gnt", ko:"진 토닉", en:"Gin & Tonic", price:"1.2", tags:["가볍게","시트러스"], desc:"하우스 진 + 피버트리 인디언. 진·토닉 변경 가능.", sim:["s1","t-indian"]},
+    {id:"c-martini", ko:"드라이 마티니", en:"Dry Martini", price:"1.5", tags:["드라이"], desc:"진 6 : 베르무트 1. 올리브와 레몬 필 중 고르세요.", sim:["s2"]},
+    {id:"c-gimlet", ko:"김렛", en:"Gimlet", price:"1.4", tags:["시트러스"], desc:"진과 직접 만든 라임 코디얼. 짧고 선명한 한 잔.", sim:["s4"]},
+    {id:"c-negroni", ko:"네그로니", en:"Negroni", price:"1.5", star:1, tags:["스파이시","달콤"], desc:"진·캄파리·베르무트 같은 비율. 쓴맛을 좋아하면 이 잔.", sim:["w1","g-citadelle"]},
+    {id:"c-french75", ko:"프렌치 75", en:"French 75", price:"1.6", tags:["시트러스","가볍게"], desc:"진 사워 위에 스파클링 와인. 축하할 일이 있을 때.", sim:["w2"]},
+    {id:"c-aviation", ko:"에비에이션", en:"Aviation", price:"1.6", out:true, tags:["플로럴"], desc:"바이올렛 리큐르의 연보라색. 꽃향이 진해요.", sim:["g-hendricks"]},
+    {id:"c-lastword", ko:"라스트 워드", en:"Last Word", price:"1.7", tags:["허브","달콤"], desc:"진·샤르트뢰즈·마라스키노·라임 같은 비율. 약초 향이 강해요.", sim:["s4","g-monkey"]},
+  ]},
+  {id:"tonic", ko:"토닉 고르기", en:"Tonic", cols:"single", note:"진 토닉·하이볼 주문 시 변경", items:[
+    {id:"t-indian", ko:"피버트리 인디언", en:"Fever-Tree Indian", price:"기본", tags:["가볍게"], desc:"쓴맛 적당한 기본 토닉. 어떤 진과도 무난해요."},
+    {id:"t-elder", ko:"피버트리 엘더플라워", en:"Fever-Tree Elderflower", price:"+0.2", tags:["플로럴","달콤"], desc:"딱총나무꽃 향. 헨드릭스·로쿠와 잘 맞아요.", sim:["g-hendricks","g-roku"]},
+    {id:"t-med", ko:"피버트리 지중해", en:"Fever-Tree Mediterranean", price:"+0.2", tags:["허브"], desc:"타임·로즈마리 향. 진 마레와 짝.", sim:["g-mare"]},
+    {id:"t-1724", ko:"1724 토닉", en:"1724 Tonic", price:"+0.3", tags:["드라이"], desc:"단맛을 뺀 칠레산 토닉. 진 맛이 그대로 보여요.", sim:["g-tanq"]},
+  ]},
+  {id:"zero", ko:"무알콜", en:"Zero Proof", cols:"single", items:[
+    {id:"n-gnt", ko:"제로 G&T", en:"Zero G&T", price:"0.9", tags:["무알콜","허브","가볍게"], desc:"무알콜 보태니컬 증류액에 토닉. 기분은 그대로.", sim:["s1"]},
+    {id:"n-omija", ko:"오미자 에이드", en:"Omija Ade", price:"0.8", tags:["무알콜","시트러스","달콤"], desc:"오미자청과 탄산. 시그니처 오미자 사워의 무알콜판.", sim:["s3"]},
+    {id:"n-ginger", ko:"진저 토닉", en:"Ginger Tonic", price:"0.8", tags:["무알콜","스파이시"], desc:"생강 시럽과 토닉. 맵싸하고 개운해요."},
+  ]},
+  {id:"food", ko:"안주", en:"Bites", cols:"single", items:[
+    {id:"f-olive", ko:"올리브 & 피클", en:"Olives & Pickles", price:"0.9", desc:"카스텔베트라노 올리브와 수제 오이 피클."},
+    {id:"f-fries", ko:"트러플 감자튀김", en:"Truffle Fries", price:"1.4", star:1, desc:"트러플 오일과 파르메산. 두 명이 나누기 좋은 양."},
+    {id:"f-jamon", ko:"하몽 플레이트", en:"Jamón Plate", price:"2.2", desc:"하몽 세라노 60g, 멜론, 그리시니."},
+    {id:"f-choco", ko:"다크 초콜릿 & 오렌지", en:"Dark Chocolate & Orange", price:"1.0", out:true, desc:"카카오 72% 초콜릿과 설탕에 절인 오렌지 껍질. 네그로니와 짝."},
+  ]},
+];
+
+const BUILD = [
+  {img:"b1-juniper", t:"주니퍼", h:"모든 진은 노간주 열매에서 시작해요", p:"솔잎 같은 쌉싸름한 향. 법적으로 이 향이 주가 되어야 '진'이라고 부를 수 있어요.", s:"Juniperus communis"},
+  {img:"b2-botanical", t:"보태니컬", h:"그 다음은 집집마다 다른 레시피", p:"고수 씨, 시트러스 껍질, 안젤리카 뿌리. 몇 가지를 어떤 비율로 넣느냐가 브랜드의 얼굴이 돼요.", s:"Coriander · Citrus peel · Angelica"},
+  {img:"b3-still", t:"증류", h:"구리 증류기가 향만 골라 올려요", p:"곡물 주정에 보태니컬을 담가 다시 증류합니다. 구리는 거친 황 냄새를 잡아 줘요.", s:"Copper pot still · 2nd distillation"},
+  {img:"b4-ice", t:"얼음", h:"맑은 얼음은 천천히 녹아요", p:"매일 아침 큰 블록을 깎아 씁니다. 늦게 녹아야 마지막 모금까지 맛이 흐려지지 않아요.", s:"Hand-carved · −18°C"},
+  {img:"b5-pour", t:"토닉", h:"토닉은 잔 벽을 타고 조용히", p:"탄산이 날아가지 않게 바 스푼을 따라 부어요. 진 1 : 토닉 3이 기본, 원하시면 조절해 드려요.", s:"Gin 1 : Tonic 3"},
+];
+
+const TAGS = ["시트러스","허브","플로럴","스파이시","드라이","달콤","스모키","가볍게","무알콜"];
+const $ = s => document.querySelector(s);
+const ALL = MENU.flatMap(c => c.items.map(it => ({...it, cat:c})));
+const byId = Object.fromEntries(ALL.map(it => [it.id, it]));
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+// 사진은 로드 성공 후에만 보인다 (없으면 .ph 그라디언트+이니셜)
+const ph = (img, initial, cls = "", alt = "") =>
+  `<div class="ph ${cls}" data-i="${esc(initial)}">${img ? `<img src="img/${img}.jpg" alt="${esc(alt)}" loading="lazy" onload="this.classList.add('ok')" onerror="this.remove()">` : ""}</div>`;
+const initial = it => (it.en || it.ko).replace(/^The /, "")[0];
+const stars = n => n ? `<span class="star" aria-label="추천 ${n}">${"★".repeat(n)}</span>` : "";
+
+/* Nº01 */
+$("#weekList").innerHTML = MENU[0].items.map((it, i) => `
+  <button class="wcard rv" style="--d:${i * 90}ms" data-id="${it.id}">
+    ${ph(it.img, initial(it), "", it.ko)}
+    <div class="wbody">
+      <div class="wtop"><h3 class="wname">${esc(it.ko)}<small>${esc(it.en)}</small></h3><span class="wprice num">${it.price}</span></div>
+      <p class="wdesc">${esc(it.desc)}</p>
+      <div class="pour"><span class="label kr">남은 잔 <span class="num">${it.left} / ${it.total}</span></span>
+        <div class="pour-bar"><i style="--v:${it.left / it.total}"></i></div></div>
+    </div>
+  </button>`).join("");
+
+/* Nº02 */
+$("#stack").innerHTML = BUILD.map((b, i) => ph(b.img, b.t, i ? "" : "on", b.h)).join("");
+$("#bslides").innerHTML = BUILD.map((b, i) => `
+  <div class="bslide${i ? "" : " on"}"><span class="label kr">${String(i + 1).padStart(2, "0")} · ${b.t}</span>
+  <h3>${b.h}</h3><p>${b.p}</p><p class="label spec">${b.s}</p></div>`).join("");
+$("#bdots").innerHTML = BUILD.map(() => "<i><b></b></i>").join("");
+
+/* Nº03 */
+const priceCells = (o, cols) => cols === "shot-bottle"
+  ? `<span class="prices num"><span class="cell">${o.shot ?? ""}</span><span class="cell">${o.bottle ?? ""}</span></span>`
+  : `<span class="prices num"><span class="cell">${o.price ?? ""}</span></span>`;
+
+$("#cats").innerHTML = MENU.map(c => `
+  <div class="cat" id="cat-${c.id}" data-cat="${c.id}">
+    <div class="cat-h"><h3>${c.en}<span>${c.ko}</span></h3>
+      ${c.cols === "shot-bottle" ? `<div class="cols label"><span>Shot</span><span>Bottle</span></div>` : ""}</div>
+    ${c.note ? `<p class="cat-note">${esc(c.note)}</p>` : ""}
+    <ul class="list">${c.items.map(it => `
+      <li class="item${it.out ? " out" : ""}" data-id="${it.id}">
+        <button class="row">
+          ${it.img ? ph(it.img, initial(it), "thumb") : ""}
+          <span class="nm"><b>${esc(it.ko)}</b>${stars(it.star)}${it.sig ? `<span class="badge">Signature</span>` : ""}${c.id === "weekly" ? `<span class="badge wk">Weekly</span>` : ""}${it.out ? `<span class="badge out">품절</span>` : ""}
+            <span class="en">${esc(it.en)}</span>${it.desc && !it.kids ? `<span class="ds">${esc(it.desc)}</span>` : ""}</span>
+          ${it.kids ? "" : priceCells(it, c.cols)}
+        </button>
+        ${it.kids ? `<ul class="kids">${it.kids.map(k => `<li class="kid${k.out ? " out" : ""}"><span class="kn">${esc(k.ko)}${k.out ? ` <span class="badge out">품절</span>` : ""}</span>${priceCells(k, c.cols)}</li>`).join("")}</ul>` : ""}
+      </li>`).join("")}</ul>
+  </div>`).join("");
+
+$("#chips").innerHTML =
+  MENU.map(c => `<button class="chip" data-go="${c.id}">${c.ko}</button>`).join("") +
+  `<span class="sep"></span>` +
+  TAGS.map(t => `<button class="chip tag" data-tag="${t}" aria-pressed="false">#${t}</button>`).join("");
+
+/* 필터: 검색어 · 취향 태그 · 품절 숨기기 */
+const state = {q: "", tag: null, hideOut: false};
+function applyFilter() {
+  const q = state.q.trim().toLowerCase();
+  let shown = 0;
+  document.querySelectorAll(".item").forEach(li => {
+    const it = byId[li.dataset.id];
+    const hay = [it.ko, it.en, it.desc, ...(it.tags || []), ...(it.kids || []).map(k => k.ko)].join(" ").toLowerCase();
+    const allOut = it.out || (it.kids && it.kids.every(k => k.out));
+    const ok = (!q || hay.includes(q)) && (!state.tag || (it.tags || []).includes(state.tag)) && !(state.hideOut && allOut);
+    li.hidden = !ok;
+    if (ok) shown++;
+    li.querySelectorAll(".kid.out").forEach(k => k.hidden = state.hideOut);
+  });
+  document.querySelectorAll(".cat").forEach(c => c.hidden = !c.querySelector(".item:not([hidden])"));
+  $("#empty").hidden = shown > 0;
+}
+$("#q").addEventListener("input", e => { state.q = e.target.value; applyFilter(); });
+$("#hideOut").addEventListener("click", e => {
+  state.hideOut = !state.hideOut;
+  e.currentTarget.setAttribute("aria-pressed", state.hideOut);
+  applyFilter();
+});
+$("#chips").addEventListener("click", e => {
+  const b = e.target.closest("button");
+  if (!b) return;
+  if (b.dataset.tag) {
+    state.tag = state.tag === b.dataset.tag ? null : b.dataset.tag;
+    document.querySelectorAll(".chip.tag").forEach(x => {
+      const on = x.dataset.tag === state.tag;
+      x.classList.toggle("on", on); x.setAttribute("aria-pressed", on);
+    });
+    applyFilter();
+    $("#cats").scrollIntoView({block: "start"});
+  } else {
+    document.getElementById("cat-" + b.dataset.go).scrollIntoView({block: "start"});
+  }
+});
+
+// 스크롤 위치에 맞춰 카테고리 칩 강조
+const catChips = Object.fromEntries([...document.querySelectorAll(".chip[data-go]")].map(b => [b.dataset.go, b]));
+const spy = new IntersectionObserver(es => es.forEach(e => {
+  if (!e.isIntersecting) return;
+  Object.values(catChips).forEach(b => b.classList.remove("on"));
+  const b = catChips[e.target.dataset.cat];
+  b.classList.add("on");
+  const bar = b.parentElement;
+  bar.scrollTo({left: b.offsetLeft - bar.clientWidth / 2 + b.clientWidth / 2, behavior: "smooth"});
+}), {rootMargin: "-140px 0px -60% 0px"});
+document.querySelectorAll(".cat").forEach(c => spy.observe(c));
+
+/* 상세 시트 */
+const sheet = $("#sheet");
+function openSheet(id) {
+  const it = byId[id];
+  const c = it.cat;
+  const priceLine = it.kids
+    ? it.kids.map(k => `<div class="num"><span>${esc(k.ko)}</span>${k.out ? "품절" : `${k.shot} / ${k.bottle}`}</div>`).join("")
+    : c.cols === "shot-bottle"
+      ? `<div class="num"><span>Shot</span>${it.shot}</div><div class="num"><span>Bottle</span>${it.bottle}</div>`
+      : `<div class="num">${it.out ? "오늘 품절" : it.price}</div>`;
+  const sims = (it.sim || []).map(s => byId[s]).filter(Boolean);
+  $("#sheetIn").innerHTML = `
+    ${it.img ? ph(it.img, initial(it), "sh-img", it.ko) : ""}
+    <div class="sh-body">
+      <div class="sh-top"><h4 id="shName" tabindex="-1" autofocus>${esc(it.ko)}${stars(it.star)}<small>${esc(it.en)} · ${c.ko}</small></h4>
+        <button class="x" aria-label="닫기" data-close>✕</button></div>
+      <div class="sh-price">${priceLine}</div>
+      ${it.desc ? `<p class="sh-desc">${esc(it.desc)}</p>` : ""}
+      ${it.tags?.length ? `<p class="label kr sh-k">이런 분께</p><div class="sh-tags">${it.tags.map(t => `<span>#${t}</span>`).join("")}</div>` : ""}
+      ${sims.length ? `<p class="label kr sh-k">이것도 좋아하실 거예요</p><div class="sh-sim">${sims.map(s => `
+        <button class="sim" data-id="${s.id}"><span>${esc(s.ko)} <small>${esc(s.en)}</small></span><span class="num">${s.price ?? s.shot ?? (s.kids ? s.kids[0].shot + "~" : "")}</span></button>`).join("")}</div>` : ""}
+    </div>`;
+  if (!sheet.open) sheet.showModal();
+  sheet.scrollTop = 0;
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest(".row, .wcard, .sim");
+  if (b) openSheet(b.dataset.id || b.closest(".item").dataset.id);
+});
+sheet.addEventListener("click", e => {
+  if (e.target === sheet || e.target.closest("[data-close]")) sheet.close();
+});
+
+/* 스크롤: 진행바 · 상단바 · 핀 섹션 */
+const prog = $("#progress"), nav = $("#nav"), build = $("#build"), stack = $("#stack");
+const shots = [...stack.children], slides = [...$("#bslides").children], dots = [...document.querySelectorAll("#bdots b")];
+const layers = [...document.querySelectorAll(".glass .lay")];
+const bnum = $("#bnum"), tools = document.querySelector(".tools"), menuSec = $("#menu");
+let cur = -1, lastY = 0, ticking = false;
+const clamp = v => Math.min(1, Math.max(0, v));
+function onScroll() {
+  ticking = false;
+  const y = scrollY, H = innerHeight;
+  prog.style.transform = `scaleX(${y / (document.documentElement.scrollHeight - H) || 0})`;
+  nav.classList.toggle("solid", y > 40);
+  // 메뉴 도구바가 붙어 있을 땐 상단바를 치움
+  const mr = menuSec.getBoundingClientRect();
+  nav.classList.toggle("away", tools.getBoundingClientRect().top <= 64 && mr.bottom > 64);
+  const r = build.getBoundingClientRect();
+  const p = clamp(-r.top / (r.height - H));
+  const f = p * BUILD.length;
+  const step = Math.min(BUILD.length - 1, Math.floor(f));
+  stack.style.setProperty("--lp", clamp(f - step).toFixed(3));
+  dots.forEach((d, i) => d.style.setProperty("--f", clamp(f - i)));
+  layers.forEach((l, i) => l.style.transform = `scaleY(${clamp(f - i)})`);
+  if (step !== cur) {
+    cur = step;
+    shots.forEach((s, i) => s.classList.toggle("on", i === step));
+    slides.forEach((s, i) => s.classList.toggle("on", i === step));
+    bnum.textContent = String(step + 1).padStart(2, "0");
+  }
+}
+addEventListener("scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, {passive: true});
+addEventListener("resize", onScroll);
+onScroll();
+
+/* 리빌 */
+const io = new IntersectionObserver(es => es.forEach(e => {
+  if (e.isIntersecting) { e.target.classList.add("lit"); io.unobserve(e.target); }
+}), {rootMargin: "0px 0px -8% 0px"});
+document.querySelectorAll(".rv").forEach(el => io.observe(el));
+
+/* 로더: body.loading → open → done */
+const heroImg = document.querySelector(".hero-bg img");
+const markHero = () => heroImg.classList.add("ok");
+heroImg.complete && heroImg.naturalWidth ? markHero() : (heroImg.onload = markHero, heroImg.onerror = () => heroImg.remove());
+const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
+function openBar() {
+  if (!document.body.classList.contains("loading")) return;
+  document.body.classList.replace("loading", "open");
+  setTimeout(() => document.body.classList.add("done"), 1100);
+}
+if (RM) openBar();
+else {
+  const abv = $("#abv"), fill = $("#fill"), T = 1700, t0 = performance.now();
+  (function tick(now) {
+    const k = Math.min(1, (now - t0) / T), e = 1 - Math.pow(1 - k, 3);
+    abv.textContent = (47 * e).toFixed(1).padStart(4, "0");
+    fill.style.transform = `scaleY(${e * .8})`;
+    if (k < 1 && document.body.classList.contains("loading")) requestAnimationFrame(tick);
+    else setTimeout(openBar, 250);
+  })(t0);
+  ["pointerdown", "wheel", "touchstart", "keydown"].forEach(ev => addEventListener(ev, openBar, {once: true, passive: true}));
+}
+</script>
+</body>
+</html>
