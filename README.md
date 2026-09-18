@@ -8,12 +8,20 @@
 - 사장님이 직접 품절·가격을 고치는 DB 버전으로 넓히는 방법
 - 예시 사이트(을지로 진 바, 사진 포함)와 playwright 검증 스크립트
 
-## 설치
+## 설치 (한 줄)
+```bash
+curl -fsSL https://raw.githubusercontent.com/manabout-town/web-menu-skill/main/install.sh | bash
+```
+`~/.claude/skills/web-menu` 에 설치된다. Claude Code를 새로 열고 "마라탕집 메뉴판 만들어줘"처럼 말하면 된다.
+설치 위치를 바꾸려면 `CLAUDE_SKILLS_DIR=... curl ... | bash`.
+
+<details><summary>레포를 통째로 받고 싶다면</summary>
+
 ```bash
 git clone https://github.com/manabout-town/web-menu-skill.git
-cd web-menu-skill && ./install.sh     # → ~/.claude/skills/web-menu
+cd web-menu-skill && ./install.sh
 ```
-그다음 Claude Code에서 "마라탕집 메뉴판 만들어줘"처럼 말하면 된다.
+</details>
 
 ## 구성
 ```
